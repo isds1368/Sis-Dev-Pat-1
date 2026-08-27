@@ -1,0 +1,192 @@
+/* ============================================================
+   DESIGN SYSTEM — CONTROLE DE PALETEIRAS
+   Princípio: simplicidade + organização + controle operacional.
+   Sem gradientes, sem sombras exageradas, sem animações.
+   ============================================================ */
+
+:root {
+    --cor-fundo: #F5F6F8;
+    --cor-card: #FFFFFF;
+    --cor-borda: #E4E7EC;
+    --cor-texto: #1F2430;
+    --cor-texto-suave: #6B7280;
+
+    --cor-disponivel: #2563EB;      /* azul */
+    --cor-operacao: #16A34A;        /* verde */
+    --cor-manutencao: #EA580C;      /* laranja */
+    --cor-quebrada: #DC2626;        /* vermelho */
+    --cor-substituicao: #7C3AED;    /* roxo - destaque */
+}
+
+/* Remove excesso visual padrão do Streamlit */
+#MainMenu, header, footer {visibility: hidden;}
+.block-container {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    max-width: 1200px;
+}
+body, .stApp {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+/* ---------------- SIDEBAR ---------------- */
+section[data-testid="stSidebar"] {
+    background-color: var(--cor-card);
+    border-right: 1px solid var(--cor-borda);
+}
+section[data-testid="stSidebar"] .block-container {
+    padding-top: 1.2rem;
+}
+.sidebar-brand {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    padding: 0 0.2rem 1rem 0.2rem;
+    border-bottom: 1px solid var(--cor-borda);
+    margin-bottom: 0.8rem;
+}
+.sidebar-brand span {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--cor-texto-suave);
+    margin-top: 2px;
+}
+.sidebar-section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cor-texto-suave);
+    margin: 0.9rem 0 0.3rem 0.3rem;
+}
+section[data-testid="stSidebar"] .stButton button {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+    color: var(--cor-texto);
+    font-weight: 500;
+    box-shadow: none;
+}
+section[data-testid="stSidebar"] .stButton button:hover {
+    background-color: #EEF2FF;
+    color: var(--cor-disponivel);
+}
+section[data-testid="stSidebar"] .stButton button[kind="primary"] {
+    background-color: #EEF2FF;
+    color: var(--cor-disponivel);
+    font-weight: 600;
+}
+
+/* ---------------- CARDS / KPIs ---------------- */
+.kpi-card {
+    background-color: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    height: 100%;
+}
+.kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--cor-texto-suave);
+    margin-bottom: 0.4rem;
+}
+.kpi-value {
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--cor-texto);
+}
+.kpi-accent { border-left: 4px solid var(--cor-borda); }
+.kpi-accent.azul { border-left-color: var(--cor-disponivel); }
+.kpi-accent.verde { border-left-color: var(--cor-operacao); }
+.kpi-accent.laranja { border-left-color: var(--cor-manutencao); }
+.kpi-accent.vermelho { border-left-color: var(--cor-quebrada); }
+.kpi-accent.roxo { border-left-color: var(--cor-substituicao); }
+.kpi-accent.cinza { border-left-color: var(--cor-texto-suave); }
+
+/* ---------------- SECTION HEADERS ---------------- */
+.section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    margin: 1.6rem 0 0.6rem 0;
+}
+.page-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    margin-bottom: 0.1rem;
+}
+.page-subtitle {
+    font-size: 0.85rem;
+    color: var(--cor-texto-suave);
+    margin-bottom: 1.2rem;
+}
+
+/* ---------------- BADGES DE STATUS ---------------- */
+.badge {
+    display: inline-block;
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.badge-azul { background-color: #DBEAFE; color: #1D4ED8; }
+.badge-verde { background-color: #DCFCE7; color: #15803D; }
+.badge-laranja { background-color: #FFEDD5; color: #C2410C; }
+.badge-vermelho { background-color: #FEE2E2; color: #B91C1C; }
+.badge-roxo { background-color: #EDE9FE; color: #6D28D9; }
+.badge-cinza { background-color: #F1F5F9; color: #475569; }
+
+/* ---------------- TABELAS ---------------- */
+.stDataFrame, div[data-testid="stTable"] {
+    border: 1px solid var(--cor-borda) !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+}
+thead tr th {
+    background-color: #F8F9FB !important;
+    font-size: 0.78rem !important;
+    color: var(--cor-texto-suave) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+/* ---------------- BOTÕES PRINCIPAIS ---------------- */
+.stButton > button, .stFormSubmitButton > button {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0.45rem 1.1rem;
+    border: 1px solid var(--cor-borda);
+}
+div[data-testid="stForm"] .stFormSubmitButton > button {
+    background-color: var(--cor-disponivel);
+    color: white;
+    border: none;
+}
+div[data-testid="stForm"] .stFormSubmitButton > button:hover {
+    background-color: #1D4ED8;
+}
+
+/* ---------------- INPUTS / FILTROS ---------------- */
+.stTextInput input, .stSelectbox div[data-baseweb="select"], .stDateInput input {
+    border-radius: 8px !important;
+}
+div[data-testid="stForm"] {
+    background-color: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+}
+
+hr { border-color: var(--cor-borda); }
