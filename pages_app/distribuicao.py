@@ -18,7 +18,7 @@ def render():
         df = pd.DataFrame(
             [
                 {
-                    "Unidade": l["setor"],
+                    "Unidade": l["unidade"],
                     "Planejado": l["planejado"],
                     "Em Operação": l["em_operacao"],
                     "Quebradas": l["quebradas"],
