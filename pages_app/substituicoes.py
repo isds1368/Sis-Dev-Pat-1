@@ -23,9 +23,9 @@ def render():
     else:
         st.markdown('<div class="section-title">Pendentes</div>', unsafe_allow_html=True)
 
-        equipamentos_disponiveis = [
-            e for e in svc_equip.listar_equipamentos() if e["status"] == svc_equip.STATUS_DISPONIVEL
-        ]
+        # Não existe mais status "Disponível" — a reserva para substituição
+        # agora é todo equipamento operacional parado em CD/Estoque.
+        equipamentos_disponiveis = svc_equip.listar_em_estoque()
         mapa_disponiveis = {e["codigo"]: e for e in equipamentos_disponiveis}
 
         for s in pendentes:

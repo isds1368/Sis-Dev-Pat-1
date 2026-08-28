@@ -11,7 +11,6 @@ def codigo_valido(codigo: str) -> bool:
     return bool(codigo) and bool(PADRAO_CODIGO.match(codigo.strip()))
 
 STATUS_OPERACIONAL = "Em operação"
-STATUS_DISPONIVEL = "Disponível"
 STATUS_MANUTENCAO = "Em manutenção"
 STATUS_QUEBRADA = "Quebrada"
 STATUS_AGUARDANDO_SUBSTITUICAO = "Aguardando substituição"
@@ -24,6 +23,14 @@ PROPRIEDADES = ["Própria", "Alugada"]
 # para um novo registro de quebra — já está fora de operação por algum
 # motivo relacionado a quebra/substituição.
 STATUS_FORA_DE_OPERACAO = {STATUS_QUEBRADA, STATUS_AGUARDANDO_SUBSTITUICAO, STATUS_SUBSTITUIDO}
+
+# Tipos de local que representam estoque parado (CD/Estoque), e não uma
+# unidade operacional. O status "Disponível" foi removido: todo equipamento
+# fora de STATUS_FORA_DE_OPERACAO é tratado como "Em operação", esteja ele
+# de fato numa loja ou parado nesses locais. Para achar substitutos, quem
+# precisa saber "está parado no estoque?" passa a olhar o TIPO do local
+# atual, não mais um status separado.
+TIPOS_LOCAL_ESTOQUE = {"CD", "Estoque"}
 
 
 def listar_equipamentos(apenas_ativos: bool = True) -> list[dict]:
@@ -126,7 +133,6 @@ def retirar_equipamento(equipamento_id: str):
 def contar_por_status() -> dict:
     equipamentos = listar_equipamentos()
     contagem = {
-        STATUS_DISPONIVEL: 0,
         STATUS_OPERACIONAL: 0,
         STATUS_MANUTENCAO: 0,
         STATUS_QUEBRADA: 0,
@@ -138,6 +144,25 @@ def contar_por_status() -> dict:
             contagem[s] += 1
     contagem["Total"] = len(equipamentos)
     return contagem
+
+
+def listar_em_estoque() -> list[dict]:
+    """
+    Equipamentos operacionais parados em CD/Estoque — a "reserva" que pode
+    ser usada como substituto em uma quebra. Substitui o antigo filtro por
+    status "Disponível": agora quem indica que um equipamento está parado
+    no estoque (em vez de já alocado numa loja) é o TIPO do local atual.
+    """
+    from services import locais as svc_locais
+
+    ids_estoque = {
+        l["id"] for l in svc_locais.listar_locais(apenas_ativos=False) if l.get("tipo") in TIPOS_LOCAL_ESTOQUE
+    }
+    return [
+        e
+        for e in listar_equipamentos()
+        if e.get("localizacao_atual_id") in ids_estoque and e.get("status") not in STATUS_FORA_DE_OPERACAO
+    ]
 
 
 def contar_por_propriedade() -> dict:

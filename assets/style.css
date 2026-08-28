@@ -162,6 +162,41 @@ thead tr th {
     letter-spacing: 0.02em;
 }
 
+/* ---------------- POPUP (st.dialog) ---------------- */
+/* O popup do chamado e o botão "Ver detalhes" seguem o mesmo cartão
+   branco do resto do sistema, com texto escuro de alto contraste — nunca
+   herdam um tema escuro do navegador. */
+div[data-testid="stDialog"] > div {
+    background-color: var(--cor-card) !important;
+    color: var(--cor-texto) !important;
+    border-radius: 12px;
+}
+div[data-testid="stDialog"] * {
+    color: var(--cor-texto);
+}
+div[data-testid="stDialog"] .stButton > button {
+    background-color: var(--cor-card);
+    color: var(--cor-texto);
+    border: 1px solid var(--cor-borda);
+}
+
+/* Botão "Ver detalhes" dos cards de Pedido Interno e demais botões
+   secundários — nunca os botões primary (que seguem azul, ver abaixo). */
+.stButton > button:not([kind="primary"]) {
+    background-color: var(--cor-card);
+    color: var(--cor-texto) !important;
+}
+.stButton > button:not([kind="primary"]):hover {
+    background-color: #F8F9FB;
+    color: var(--cor-disponivel) !important;
+    border-color: var(--cor-disponivel);
+}
+.stButton > button[kind="primary"] {
+    background-color: var(--cor-disponivel);
+    color: #FFFFFF !important;
+    border: none;
+}
+
 /* ---------------- BOTÕES PRINCIPAIS ---------------- */
 .stButton > button, .stFormSubmitButton > button {
     border-radius: 8px;

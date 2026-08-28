@@ -24,7 +24,6 @@ def esc(valor) -> str:
 # Cores / badges de status
 # ------------------------------------------------------------
 STATUS_COR = {
-    "Disponível": "azul",
     "Em operação": "verde",
     "Em manutenção": "laranja",
     "Quebrada": "vermelho",

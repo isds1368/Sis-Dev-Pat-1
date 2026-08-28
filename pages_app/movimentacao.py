@@ -17,7 +17,7 @@ def render():
     )
 
     equipamentos = [
-        e for e in svc_equip.listar_equipamentos() if e["status"] != svc_equip.STATUS_QUEBRADA
+        e for e in svc_equip.listar_equipamentos() if e["status"] not in svc_equip.STATUS_FORA_DE_OPERACAO
     ]
     locais = svc_locais.listar_locais()
     locais_map = svc_locais.mapa_id_para_nome()
@@ -52,12 +52,10 @@ def render():
 
         if confirmar:
             destino_id = next(l["id"] for l in locais if l["nome"] == destino_nome)
-            local_destino = next(l for l in locais if l["id"] == destino_id)
-            novo_status = (
-                svc_equip.STATUS_DISPONIVEL
-                if local_destino["tipo"] in ("CD", "Estoque")
-                else svc_equip.STATUS_OPERACIONAL
-            )
+            # O status "Disponível" não existe mais: todo equipamento
+            # movimentado passa a "Em operação", independente do tipo do
+            # local de destino.
+            novo_status = svc_equip.STATUS_OPERACIONAL
 
             usuario = usuario_logado()
             svc_mov.mover_equipamento(

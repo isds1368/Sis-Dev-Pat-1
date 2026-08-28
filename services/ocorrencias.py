@@ -3,15 +3,9 @@ from services import equipamentos as svc_equip
 from services import movimentacoes as svc_mov
 from services import distribuicao as svc_dist
 
-TIPOS_PROBLEMA = [
-    "Rodas",
-    "Garfo",
-    "Sistema hidráulico",
-    "Estrutura",
-    "Alça/comando",
-    "Elétrico",
-    "Outro",
-]
+# Os motivos de quebra agora são cadastrados/editados em
+# Configurações → Cadastros (tabela motivos_quebra). Use
+# services.motivos_quebra.nomes_ativos() para obter a lista atual.
 
 
 def registrar_quebra(

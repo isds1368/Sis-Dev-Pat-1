@@ -44,7 +44,13 @@ def visao_distribuicao() -> list[dict]:
         eq_no_local = [e for e in equipamentos if e.get("localizacao_atual_id") == local_id]
 
         em_operacao = sum(1 for e in eq_no_local if e["status"] == svc_equip.STATUS_OPERACIONAL)
-        quebradas = sum(1 for e in eq_no_local if e["status"] == svc_equip.STATUS_QUEBRADA)
+        # "Quebradas" agrupa Quebrada + Aguardando substituição: ambos são
+        # equipamentos fora de operação por causa de uma quebra, só que em
+        # etapas diferentes do processo de reposição junto ao fornecedor.
+        quebradas = sum(
+            1 for e in eq_no_local
+            if e["status"] in (svc_equip.STATUS_QUEBRADA, svc_equip.STATUS_AGUARDANDO_SUBSTITUICAO)
+        )
         planejado = planejado_map.get(local_id, 0)
 
         linhas.append(

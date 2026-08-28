@@ -112,6 +112,9 @@ def criar_usuario(
                 "nome": nome.strip(),
                 "perfil": perfil,
                 "local_id": local_id if perfil == "Supervisor" else None,
+                # Senha provisória definida por quem está concedendo o
+                # acesso: a pessoa é obrigada a trocá-la no primeiro login.
+                "deve_trocar_senha": True,
             }
         )
         .execute()
@@ -151,10 +154,28 @@ def alterar_propria_senha(usuario_id: str, senha_atual: str, nova_senha: str) ->
         return False, motivo
 
     hash_val, salt = hash_senha(nova_senha)
-    supabase().table("usuarios").update({"senha_hash": hash_val, "salt": salt}).eq(
-        "id", usuario_id
-    ).execute()
+    supabase().table("usuarios").update(
+        {"senha_hash": hash_val, "salt": salt, "deve_trocar_senha": False}
+    ).eq("id", usuario_id).execute()
     return True, "Senha alterada com sucesso."
+
+
+def concluir_primeiro_acesso(usuario_id: str, nova_senha: str) -> tuple[bool, str]:
+    """
+    Fluxo do módulo de primeiro acesso: a pessoa já provou que tem a senha
+    provisória (passou pelo autenticar() para chegar aqui), então troca a
+    senha sem pedir a senha atual de novo, e libera o acesso normal ao
+    marcar deve_trocar_senha = False.
+    """
+    ok, motivo = senha_forte(nova_senha)
+    if not ok:
+        return False, motivo
+
+    hash_val, salt = hash_senha(nova_senha)
+    supabase().table("usuarios").update(
+        {"senha_hash": hash_val, "salt": salt, "deve_trocar_senha": False}
+    ).eq("id", usuario_id).execute()
+    return True, "Senha definida com sucesso."
 
 
 def usuario_logado() -> dict | None:

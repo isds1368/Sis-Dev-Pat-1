@@ -7,8 +7,10 @@ from utils.auth import (
     criar_usuario,
     definir_status_usuario,
     alterar_propria_senha,
+    PERFIS_VALIDOS,
 )
-from utils.helpers import formatar_data_br
+from services import locais as svc_locais
+from utils.helpers import formatar_data_br, esc
 
 
 def render():
@@ -19,6 +21,8 @@ def render():
     )
 
     eu = usuario_logado()
+    locais_map = svc_locais.mapa_id_para_nome()
+    locais = svc_locais.listar_locais()
 
     # ---------------- Criar novo acesso ----------------
     st.markdown('<div class="section-title">Conceder acesso a uma nova pessoa</div>', unsafe_allow_html=True)
@@ -37,10 +41,24 @@ def render():
         with c4:
             nova_senha_confirma = st.text_input("Confirmar senha", type="password")
 
+        c5, c6 = st.columns(2)
+        with c5:
+            novo_perfil = st.selectbox(
+                "Perfil", PERFIS_VALIDOS,
+                help="Administrador: acesso completo. Supervisor/Monitor: só vê o "
+                     "Inventário e registra Quebras do local abaixo.",
+            )
+        with c6:
+            novo_local_nome = st.selectbox(
+                "Local (obrigatório para Supervisor/Monitor)",
+                options=["—"] + [l["nome"] for l in locais],
+            )
+
         st.caption(
             "A senha deve ter no mínimo 8 caracteres, com letras maiúsculas, "
-            "minúsculas e ao menos um número. Oriente a pessoa a alterá-la no "
-            "primeiro acesso, em 'Alterar minha senha' abaixo."
+            "minúsculas e ao menos um número. Essa é uma senha provisória: o "
+            "sistema vai obrigar a pessoa a trocá-la no primeiro acesso, antes "
+            "de liberar qualquer outra tela."
         )
 
         criar = st.form_submit_button("Criar acesso")
@@ -51,8 +69,17 @@ def render():
             elif nova_senha != nova_senha_confirma:
                 st.error("As senhas não coincidem.")
             else:
+                local_id = None
+                if novo_local_nome != "—":
+                    local_id = next(l["id"] for l in locais if l["nome"] == novo_local_nome)
                 try:
-                    criar_usuario(usuario=novo_login, senha=nova_senha, nome=novo_nome)
+                    criar_usuario(
+                        usuario=novo_login,
+                        senha=nova_senha,
+                        nome=novo_nome,
+                        perfil=novo_perfil,
+                        local_id=local_id,
+                    )
                     st.success(f"Acesso criado para {novo_nome} (login: {novo_login}).")
                     st.rerun()
                 except ValueError as erro:
@@ -67,10 +94,13 @@ def render():
             with st.container(border=True):
                 c1, c2, c3 = st.columns([2, 2, 1])
                 with c1:
-                    st.markdown(f"**{u['nome']}**")
-                    st.caption(f"Login: {u['usuario']}")
+                    st.markdown(f"**{esc(u['nome'])}**")
+                    st.caption(f"Login: {esc(u['usuario'])}")
                 with c2:
-                    st.caption(f"Perfil: {u['perfil']} · Desde {formatar_data_br(u['created_at'])}")
+                    detalhe_perfil = f"Perfil: {u['perfil']}"
+                    if u["perfil"] == "Supervisor":
+                        detalhe_perfil += f" · Local: {esc(locais_map.get(u.get('local_id'), '-'))}"
+                    st.caption(f"{detalhe_perfil} · Desde {formatar_data_br(u['created_at'])}")
                     st.caption("✅ Ativo" if u["ativo"] else "🚫 Acesso desativado")
                 with c3:
                     if u["id"] == eu["id"]:

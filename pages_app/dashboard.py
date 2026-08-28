@@ -28,15 +28,23 @@ def render():
     )
 
     contagem = svc_equip.contar_por_status()
-    substituicoes_pendentes = svc_sub.listar_pendentes()
+    contagem_propriedade = svc_equip.contar_por_propriedade()
+    # KPI do dashboard soma TODAS as pendências (avulsas + vinculadas a
+    # pedidos internos) — é uma visão geral, diferente da lista da tela de
+    # Substituições, que separa por origem para evitar duplicidade visual.
+    substituicoes_pendentes = svc_sub.listar_pendentes(apenas_sem_pedido_interno=False)
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     _kpi(col1, "Total de Paleteiras", contagem["Total"], "cinza")
-    _kpi(col2, "Disponíveis", contagem[svc_equip.STATUS_DISPONIVEL], "azul")
-    _kpi(col3, "Em Operação", contagem[svc_equip.STATUS_OPERACIONAL], "verde")
-    _kpi(col4, "Em Manutenção", contagem[svc_equip.STATUS_MANUTENCAO], "laranja")
-    _kpi(col5, "Quebradas", contagem[svc_equip.STATUS_QUEBRADA], "vermelho")
+    _kpi(col2, "Em Operação", contagem[svc_equip.STATUS_OPERACIONAL], "verde")
+    _kpi(col3, "Em Manutenção", contagem[svc_equip.STATUS_MANUTENCAO], "laranja")
+    _kpi(col4, "Quebradas", contagem[svc_equip.STATUS_QUEBRADA], "vermelho")
+    _kpi(col5, "Aguardando Substituição", contagem[svc_equip.STATUS_AGUARDANDO_SUBSTITUICAO], "roxo")
     _kpi(col6, "Substituições Pendentes", len(substituicoes_pendentes), "roxo")
+
+    col8, col9 = st.columns(2)
+    _kpi(col8, "Equipamentos Próprios", contagem_propriedade["Própria"], "azul")
+    _kpi(col9, "Equipamentos Alugados", contagem_propriedade["Alugada"], "roxo")
 
     # --------------------- DISTRIBUIÇÃO ---------------------
     st.markdown('<div class="section-title">Distribuição por Unidade</div>', unsafe_allow_html=True)
@@ -46,7 +54,7 @@ def render():
         df = pd.DataFrame(
             [
                 {
-                    "Setor": l["unidade"],
+                    "Unidade": l["unidade"],
                     "Planejado": l["planejado"],
                     "Em Operação": l["em_operacao"],
                     "Quebradas": l["quebradas"],

@@ -3,35 +3,66 @@ import pandas as pd
 
 from services import equipamentos as svc_equip
 from services import locais as svc_locais
+from utils.auth import usuario_logado
 from utils.helpers import status_badge, propriedade_badge, formatar_data_br, tempo_de_uso, esc
+
+STATUS_OPCOES = [
+    "Todos",
+    "Em operação",
+    "Em manutenção",
+    "Quebrada",
+    "Aguardando substituição",
+    "Substituído",
+]
 
 
 def render():
     st.markdown('<div class="page-title">Inventário</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="page-subtitle">Todos os equipamentos cadastrados</div>',
-        unsafe_allow_html=True,
-    )
 
-    equipamentos = svc_equip.listar_equipamentos()
+    usuario = usuario_logado()
+    eh_supervisor = usuario and usuario.get("perfil") == "Supervisor"
     locais_map = svc_locais.mapa_id_para_nome()
 
+    if eh_supervisor:
+        nome_local = locais_map.get(usuario.get("local_id"), "seu local")
+        st.markdown(
+            f'<div class="page-subtitle">Equipamentos do local: <strong>{esc(nome_local)}</strong></div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            '<div class="page-subtitle">Todos os equipamentos cadastrados</div>',
+            unsafe_allow_html=True,
+        )
+
+    # 'Substituído' fica inativo (ativo=false), então precisa entrar
+    # explicitamente com apenas_ativos=False para continuar visível aqui.
+    equipamentos = svc_equip.listar_equipamentos(apenas_ativos=False)
+
+    if eh_supervisor:
+        equipamentos = [e for e in equipamentos if e.get("localizacao_atual_id") == usuario.get("local_id")]
+
     if not equipamentos:
-        st.info("Nenhum equipamento cadastrado ainda. Utilize 'Registrar Chegada' para começar.")
+        st.info("Nenhum equipamento cadastrado ainda.")
         return
 
     # ---------------- FILTROS ----------------
-    c1, c2, c3, c4, c5 = st.columns([2, 1, 1, 1, 1])
+    if eh_supervisor:
+        c1, c2, c3, c5 = st.columns([2, 1, 1, 1])
+    else:
+        c1, c2, c3, c4, c5 = st.columns([2, 1, 1, 1, 1])
+
     with c1:
         busca = st.text_input("Pesquisar equipamento...", placeholder="Ex: PAL-001")
     with c2:
-        status_filtro = st.selectbox(
-            "Status", ["Todos", "Disponível", "Em operação", "Em manutenção", "Quebrada", "Substituída"]
-        )
+        status_filtro = st.selectbox("Status", STATUS_OPCOES)
     with c3:
         propriedade_filtro = st.selectbox("Propriedade", ["Todas", "Própria", "Alugada"])
-    with c4:
-        local_filtro = st.selectbox("Localização", ["Todas"] + sorted(locais_map.values()))
+    if not eh_supervisor:
+        with c4:
+            local_filtro = st.selectbox("Localização", ["Todas"] + sorted(locais_map.values()))
+    else:
+        local_filtro = "Todas"
     with c5:
         tipo_filtro = st.selectbox("Tipo", ["Todos"] + svc_equip.TIPOS_EQUIPAMENTO)
 

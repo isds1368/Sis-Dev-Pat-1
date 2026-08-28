@@ -70,6 +70,9 @@ def main():
             "salt": salt,
             "nome": nome,
             "perfil": "Administrador",
+            # Senha definida aqui pelo operador do script, não pelo dono da
+            # conta: o módulo de primeiro acesso obriga a troca no 1º login.
+            "deve_trocar_senha": True,
         }
     ).execute()
 
