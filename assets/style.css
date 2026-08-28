@@ -9,7 +9,7 @@
     --cor-card: #FFFFFF;
     --cor-borda: #E4E7EC;
     --cor-texto: #1F2430;
-    --cor-texto-suave: #1C1C20;
+    --cor-texto-suave: #6B7280;
 
     --cor-disponivel: #2563EB;      /* azul */
     --cor-operacao: #16A34A;        /* verde */
@@ -181,6 +181,13 @@ div[data-testid="stForm"] .stFormSubmitButton > button:hover {
 /* ---------------- INPUTS / FILTROS ---------------- */
 .stTextInput input, .stSelectbox div[data-baseweb="select"], .stDateInput input {
     border-radius: 8px !important;
+}
+/* Corrige rótulos dos campos (ex.: "Usuário", "Senha") que herdavam cor
+   branca do tema e ficavam invisíveis sobre o fundo claro. */
+label, .stTextInput label, .stTextArea label, .stSelectbox label,
+.stDateInput label, .stNumberInput label, div[data-testid="stWidgetLabel"] p {
+    color: var(--cor-texto) !important;
+    opacity: 1 !important;
 }
 div[data-testid="stForm"] {
     background-color: var(--cor-card);
