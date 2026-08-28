@@ -44,6 +44,14 @@ def usuario_valido(usuario: str) -> bool:
     return bool(usuario) and bool(PADRAO_USUARIO.match(usuario.strip()))
 
 
+def existe_usuario() -> bool:
+    """Retorna True se já houver pelo menos um usuário cadastrado (ativo ou
+    não). Usado para decidir se o app deve mostrar a tela de primeiro
+    acesso (criação do administrador) em vez da tela de login normal."""
+    resp = supabase().table("usuarios").select("id").limit(1).execute()
+    return bool(resp.data)
+
+
 def autenticar(usuario: str, senha: str) -> dict | None:
     resp = (
         supabase()
